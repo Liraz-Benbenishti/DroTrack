@@ -33,7 +33,8 @@ for title, dataset in data.data.items():
             i += 1
             file = ("{0:0"+str(dataset['zc'])+"}.jpg").format(i)
 
-            image = cv2.imread(dataset['url']+class_dir+"/img/"+file, 0)
+            full_filepath = dataset['url']+class_dir+"/img/"+file
+            image = cv2.imread(full_filepath, 0)
             frame = cv2.resize(image, (0,0), fx=1/s, fy=1/s)
             #D.showImage(frame, 'frame')
             if file == (dataset['zc']-1)*'0'+'1.jpg':
@@ -47,28 +48,35 @@ for title, dataset in data.data.items():
                 gt_box = all_boxes[i-1]
                 
                 if config.save == 1:
-                    results_saving.save_tracking_results(title, class_dir, file, bbox, bbox, s, extime)
+                    results_saving.save_tracking_results(title, class_dir, file, bbox, bbox, s, extime, full_filepath)
                     
                 continue    
             
-            try:
+            #try:
 
-                bbox, center, extime = tracker.track(frame)
-    
-    
-                if math.isnan(all_boxes[i-1][0]) or all_boxes[i-1][0] == 'NaN':
-                    gt_box = [-1,-1,0,0]
-                else:
-                    gt_box = all_boxes[i-1]
-    
-                # Visulization
-                if config.save == 0:
-                    bbox_helper.visualise_bbox(bbox, file, class_dir, s, dataset['url'])
-                    k = cv2.waitKey(5) & 0xFF 
-                    if k == 27:
-                        break 
-    
-                if config.save == 1:
-                    results_saving.save_tracking_results(title, class_dir, file, bbox, gt_box, s, extime)
-            except:
-                continue
+            bbox, center, extime = tracker.track(frame)
+
+
+            if math.isnan(all_boxes[i-1][0]) or all_boxes[i-1][0] == 'NaN':
+                gt_box = [-1,-1,0,0]
+            else:
+                gt_box = all_boxes[i-1]
+
+            # Visulization
+            if config.save == 0:
+                bbox_helper.visualise_bbox(bbox, file, class_dir, s, dataset['url'])
+                k = cv2.waitKey(5) & 0xFF 
+                if k == 27:
+                    break 
+
+            if config.save == 1:
+                results_saving.save_tracking_results(title, class_dir, file, bbox, gt_box, s, extime, full_filepath)
+                
+            # except:
+            #     print("HI")
+            #     continue
+
+print("Results output:")
+with open('/code/results/DroTrack_results_evaluation.csv', 'r') as f:
+    content = f.read()
+    print(content)
